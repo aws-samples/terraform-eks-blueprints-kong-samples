@@ -55,7 +55,8 @@ resource "aws_iam_policy" "kong_additional_policy" {
 module "eks_blueprints_kubernetes_addons_kong" {
 
   # source = "github.com/aws-ia/terraform-aws-eks-blueprints/modules/kubernetes-addons"
-  source = "../../../terraform-eksblueprints-kong-addon"
+  source = "../terraform-eksblueprints-kong-addon"
+  # source = "https://gitlab.aws.dev/terraform-eksblueprints-kong-addon/terraform-eksblueprints-kong-addon/-/tree/test-independent-module"
 
   eks_cluster_id       = module.eks_blueprints.eks_cluster_id
   eks_cluster_endpoint = module.eks_blueprints.eks_cluster_endpoint
