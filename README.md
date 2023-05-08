@@ -2,18 +2,12 @@
 
 ## Pre-Requisites
 
-* Sign up for [Kong Konnect](https://cloud.konghq.com/register) if not already. 
-* Download the shell script 
+* Sign up for [Kong Konnect](https://cloud.konghq.com/register) if not already and generate your personal access token. 
+* Download the certificate generator from `https://github.com/anshrma/kong-konnect-runtime-cert-generator/releases`
+* Authenticate against AWS by either setting environment variables or STS or any of your [preferred mechanism](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html). Ensure to set the `AWS_DEFAULT_REGION` as well.
 
-```
-curl -o https://raw.githubusercontent.com/aws-samples/sample-kong-gateway/main/konnect-secrets-manager.sh
-```
+## Execute
 
-* Execute
-
-```
-./konnect-secrets-manager.sh -v -api https://cloud.konghq.com -u '<KONNECT_USERNAME>' -p '<KONNECT_PASSWORD>' -c '<KONNECT_RUNTIME_SHA>'
-```
-
+* Run `./kong-konnect-runtime-cert-generator --help` for usage and follow instructions
 * Save the output to `terraform.auto.tfvars`
 * Optionally fill in `kong_values.yaml` with any additional helm values that you may want for the kong's helm chart.
