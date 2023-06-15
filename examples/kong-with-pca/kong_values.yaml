@@ -9,9 +9,13 @@ proxy:
     service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "Type=proxy"
     external-dns.alpha.kubernetes.io/hostname: "proxy.kong-dp.internal"
 
+env:
+  ssl_cert: "/etc/secrets/${pca_cert_secretname}/tls.crt"
+  ssl_cert_key: "/etc/secrets/${pca_cert_secretname}/tls.key"
 
 secretVolumes:
-- example-clusterissuer
+- "${pca_cert_secretname}"
+
 
 resources:
   limits:

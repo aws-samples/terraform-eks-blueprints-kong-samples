@@ -164,7 +164,7 @@ resource "kubectl_manifest" "pca_certificate" {
         name : module.eks.cluster_name
       }
       renewBefore = "360h0m0s"
-      secretName  = join("-", [var.certificate_name, "clusterissuer"]) # This is the name with which the K8 Secret will be available
+      secretName  = local.pca_cert_secretname # This is the name with which the K8 Secret will be available
       usages = [
         "server auth",
         "client auth"
@@ -203,7 +203,9 @@ module "eks_blueprints_kubernetes_addon_kong" {
     telemetry_dns    = var.telemetry_dns
     cert_secret_name = var.cert_secret_name
     key_secret_name  = var.key_secret_name
-    values = [templatefile("${path.module}/kong_values.yaml", {})]
+    values = [templatefile("${path.module}/kong_values.yaml", {
+      pca_cert_secretname = local.pca_cert_secretname
+    })]
   }
   depends_on = [
     module.eks_blueprints_addons
