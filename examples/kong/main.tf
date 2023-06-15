@@ -30,7 +30,7 @@ module "eks" {
 
 
 module "eks_blueprints_addons" {
-  source = "aws-ia/eks-blueprints-addon/aws"
+  source = "aws-ia/eks-blueprints-addons/aws"
   version = "1.0.0"
 
   cluster_name      = module.eks.cluster_name
