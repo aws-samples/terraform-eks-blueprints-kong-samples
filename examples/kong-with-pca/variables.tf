@@ -30,3 +30,9 @@ variable "certificate_dns" {
   description = "CommonName used in the Certificate, usually DNS "
   default     = "example.com"
 }
+
+variable "enable_kong_konnect" {
+  description = "Enable Kong add-on"
+  type        = bool
+  default     = true
+}

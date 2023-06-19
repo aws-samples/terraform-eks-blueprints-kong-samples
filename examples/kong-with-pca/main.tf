@@ -146,6 +146,7 @@ resource "kubectl_manifest" "cluster_pca_issuer" {
 
 # Using kubectl to workaround kubernetes provider issue https://github.com/hashicorp/terraform-provider-kubernetes/issues/1453
 resource "kubectl_manifest" "pca_certificate" {
+  count = var.enable_kong_konnect ? 1 : 0
   yaml_body = yamlencode({
     apiVersion = "cert-manager.io/v1"
     kind       = "Certificate"
