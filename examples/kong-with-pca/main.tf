@@ -218,7 +218,7 @@ module "eks_blueprints_kubernetes_addon_kong" {
   cluster_version   = module.eks.cluster_version
   oidc_provider_arn = module.eks.oidc_provider_arn
   
-  enable_kong_konnect = true
+  enable_kong_konnect = var.enable_kong_konnect
   tags = local.tags
 
   kong_config = {
