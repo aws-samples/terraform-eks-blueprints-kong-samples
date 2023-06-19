@@ -10,11 +10,11 @@ proxy:
     external-dns.alpha.kubernetes.io/hostname: "proxy.kong-dp.internal"
 
 env:
-  ssl_cert: "/etc/secrets/${pca_cert_secretname}/tls.crt"
-  ssl_cert_key: "/etc/secrets/${pca_cert_secretname}/tls.key"
+  ssl_cert: "/etc/secrets/${acm_pca_cert_secretname}/tls.crt"
+  ssl_cert_key: "/etc/secrets/${acm_pca_cert_secretname}/tls.key"
 
 secretVolumes:
-- "${pca_cert_secretname}"
+- "${acm_pca_cert_secretname}"
 
 
 resources:

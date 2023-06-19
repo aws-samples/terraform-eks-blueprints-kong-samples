@@ -62,7 +62,7 @@ module "eks_blueprints_addons" {
 module "eks_blueprints_kubernetes_addon_kong" {
 
   source = "git@ssh.gitlab.aws.dev:anshrma/temporary-kong-terraform-blueprint.git?ref=v5"
-
+  
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint
   cluster_version   = module.eks.cluster_version
@@ -77,12 +77,6 @@ module "eks_blueprints_kubernetes_addon_kong" {
     cert_secret_name = var.cert_secret_name
     key_secret_name  = var.key_secret_name
     values = [templatefile("${path.module}/kong_values.yaml", {})] 
-    #Addition Policy 
-    role_policies = {
-      kong = aws_iam_policy.kong_additional_policy.arn
-    }
-    #Namespace 
-    namespace = "kong-ns"
   }
   depends_on = [
     module.eks_blueprints_addons

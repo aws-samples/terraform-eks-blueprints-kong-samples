@@ -29,6 +29,8 @@ module "eks" {
 }
 
 
+
+
 module "eks_blueprints_addons" {
   source = "aws-ia/eks-blueprints-addons/aws"
   version = "1.0.0"
@@ -139,6 +141,26 @@ resource "kubectl_manifest" "cluster_pca_issuer" {
   ]
 }
 
+#NameSpace for Kong 
+resource "kubernetes_namespace_v1" "kong" {
+  count = var.enable_kong_konnect && local.kong_namespace != "kube-system" ? 1 : 0
+
+  metadata {
+    name = local.kong_namespace
+  }
+
+  timeouts {
+    delete = "15m"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      metadata[0].labels,
+      metadata[0].annotations,
+    ]
+  }
+}
+
 #-------------------------------
 # This resource creates a CRD of Certificate Kind, which then represents certificate issued from ACM PCA,
 # mounted as K8 secret
@@ -153,7 +175,7 @@ resource "kubectl_manifest" "pca_certificate" {
 
     metadata = {
       name      = var.certificate_name
-      namespace = module.eks_blueprints_kubernetes_addon_kong.namespace
+      namespace = kubernetes_namespace_v1.kong[0].id
     }
 
     spec = {
@@ -165,7 +187,7 @@ resource "kubectl_manifest" "pca_certificate" {
         name : module.eks.cluster_name
       }
       renewBefore = "360h0m0s"
-      secretName  = local.pca_cert_secretname # This is the name with which the K8 Secret will be available
+      secretName  = local.acm_pca_cert_secretname # This is the name with which the K8 Secret will be available
       usages = [
         "server auth",
         "client auth"
@@ -200,16 +222,20 @@ module "eks_blueprints_kubernetes_addon_kong" {
   tags = local.tags
 
   kong_config = {
+    create_namespace = false
+    namespace        = local.kong_namespace
     cluster_dns      = var.cluster_dns
     telemetry_dns    = var.telemetry_dns
     cert_secret_name = var.cert_secret_name
     key_secret_name  = var.key_secret_name
     values = [templatefile("${path.module}/kong_values.yaml", {
-      pca_cert_secretname = local.pca_cert_secretname
+      acm_pca_cert_secretname = local.acm_pca_cert_secretname
     })]
+
   }
   depends_on = [
-    module.eks_blueprints_addons
+    module.eks_blueprints_addons,
+    kubectl_manifest.pca_certificate
   ]
 }
 
