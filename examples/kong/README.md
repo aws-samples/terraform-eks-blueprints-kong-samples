@@ -3,7 +3,7 @@
 This example shows how to deploy kong konnect on Amazon EKS
 
 * Creates a new sample VPC, 3 Private Subnets and 3 Public Subnets
-* EKS Cluster 
+* Amazon EKS Cluster and Amazon EKS managed node groups
 * Enables external-secrets module
 * Creates a namespace , service account with appropriate IRSA roles 
 * Create SecretStore and ExternalSecret to fetch the AWS Secrets Manager secret as kubernetes Secrets
@@ -15,13 +15,10 @@ This example shows how to deploy kong konnect on Amazon EKS
 
 ### Prerequisites:
 
-Kong data plane connects with Konnect control plane using mTLS. **kong-konnect-runtime-cert-generator** utility makes Kong Konnect API calls to 
-See if the runtime group that you provided as input exists or not. If it does not, then creates one 
-Generates self signed certificate and pins it down with the specific runtime group
-Makes AWS API calls to store the certificate and key in AWS Secrets Manager that you can further mount to your Kubernetes pods or ECS environment variable
+Kong data plane connects with Konnect control plane using mTLS. **kong-konnect-runtime-cert-generator** utility makes Kong Konnect API calls to see if the runtime group that you provided as input exists or not. If it does not, then it creates one, generates self signed certificate and pins it down with the specific runtime group, makes AWS API calls to store the certificate and key in AWS Secrets Manager that you can further mount to your Kubernetes pods or ECS environment variable.
 
 
-* To install the tool
+* To install the utility
 ```
 curl -L https://github.com/anshrma/kong-konnect-runtime-cert-generator/releases/download/v0.1.3/kong-konnect-runtime-cert-generator_Darwin_arm64.tar.gz —output kong-konnect-runtime-cert-generator.tgz
 tar xvf kong-konnect-runtime-cert-generator.tgz
@@ -35,7 +32,7 @@ tar xvf kong-konnect-runtime-cert-generator.tgz
 ./kong-konnect-runtime-cert-generator -api-endpoint "https://us.api.konghq.com" -api-version "v2" -personal-access-token "<PAT>" -runtime-group-name "default"
 ```
 
-* Update the terraform.auto.tfvars file
+* Update the terraform.auto.tfvars file with values obtained from previous step.
   * cert_secret_name = "CHANGEME-SHA-crt"
   * key_secret_name  = "CHANGEME-SHA-key"
   * clusterDns       = "CHANGEME.us.cp0.konghq.com"
