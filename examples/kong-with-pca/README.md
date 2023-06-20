@@ -4,7 +4,7 @@ This example shows how to deploy kong konnect on Amazon EKS and mounts private c
 ACM Certificate Manager.
 
 * Creates a new sample VPC, 3 Private Subnets and 3 Public Subnets
-* EKS Cluster
+* Amazon EKS Cluster and Amazon EKS managed node groups
 * Enables external-secrets module
 * Enables cert-manager module
 * Enables cert-manager CSI driver module
