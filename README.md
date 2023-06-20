@@ -8,6 +8,6 @@
 
 ## Examples
 
-[Kong](./kong)
+[Kong](./examples/kong)
 
-[Kong with pca](./kong-with-pca)
+[Kong with pca](./examples/kong-with-pca)
