@@ -1,6 +1,10 @@
 #-------------------------------------------------------------------------------
 # Kong parameters
 # -----------------------------------------------------------------------------
+# Putting image is optional, but using this as an example how to run on Graviton
+image:
+  repository: kong/kong-gateway
+  tag: "arm64-3.3.0.0-alpine"
 proxy:
   enabled: true
   type: LoadBalancer

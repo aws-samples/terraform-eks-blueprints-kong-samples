@@ -8,7 +8,7 @@ module "eks" {
   version = "~> 19.13"
 
   cluster_name                   = local.name
-  cluster_version                = "1.26"
+  cluster_version                = "1.27"
   cluster_endpoint_public_access = true
 
   vpc_id     = module.vpc.vpc_id
@@ -17,8 +17,8 @@ module "eks" {
 
   eks_managed_node_groups = {
     initial = {
-      instance_types = ["t3.medium"]
-
+      instance_types = ["c7g.large"]
+      ami_type     = "AL2_ARM_64"
       min_size     = 1
       max_size     = 1
       desired_size = 1

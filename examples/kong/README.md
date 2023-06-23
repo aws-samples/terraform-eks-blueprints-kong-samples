@@ -50,3 +50,12 @@ Validate the deployment.
 ```
 kubectl get all -n kong 
 ```
+
+### What gets deployed in this example ?
+
+* VPC (4 subnet, 2 public and 2 private)
+* EKS Cluster
+* NLB
+* Managed Nodes on AL2 (Graviton)
+* External Secrets Manager Operator and related configurations to use AWS Secrets Manager (used to fetch certs and keys from AWS Secrets Manager)
+* Kong Data plane
