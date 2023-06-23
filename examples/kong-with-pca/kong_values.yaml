@@ -1,8 +1,6 @@
 #-------------------------------------------------------------------------------
 # Kong parameters
 # -----------------------------------------------------------------------------
-image:
-  tag: "3.2"
 proxy:
   enabled: true
   type: LoadBalancer
@@ -10,6 +8,13 @@ proxy:
     service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
     service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "Type=proxy"
     external-dns.alpha.kubernetes.io/hostname: "proxy.kong-dp.internal"
+
+env:
+  ssl_cert: "/etc/secrets/${acm_pca_cert_secretname}/tls.crt"
+  ssl_cert_key: "/etc/secrets/${acm_pca_cert_secretname}/tls.key"
+
+secretVolumes:
+- "${acm_pca_cert_secretname}"
 
 
 resources:
