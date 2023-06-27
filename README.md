@@ -2,6 +2,6 @@
 
 ## Examples
 
-[Kong](./examples/kong)
+[Kong](./examples/konnect-dataplane-graviton)
 
 [Kong with pca](./examples/kong-with-pca)

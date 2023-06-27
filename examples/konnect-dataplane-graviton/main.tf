@@ -61,7 +61,8 @@ module "eks_blueprints_addons" {
 
 module "eks_blueprints_kubernetes_addon_kong" {
 
-  source = "git@ssh.gitlab.aws.dev:anshrma/temporary-kong-terraform-blueprint.git?ref=v5"
+  source = "Kong/eks-blueprint-konnect-runtime-instance/aws"
+  version = "1.0.0"
   
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint
