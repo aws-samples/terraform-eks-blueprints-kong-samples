@@ -1,3 +1,33 @@
+
+################################################################################
+# VPC
+################################################################################
+
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "5.0"
+
+  name = local.name
+  cidr = local.vpc_cidr
+
+  azs             = local.azs
+  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
+  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 10)]
+
+  enable_nat_gateway = true
+  single_nat_gateway = true
+
+  public_subnet_tags = {
+    "kubernetes.io/role/elb" = 1
+  }
+
+  private_subnet_tags = {
+    "kubernetes.io/role/internal-elb" = 1
+  }
+
+  tags = local.tags
+}
+
 ################################################################################
 # Cluster
 ################################################################################
@@ -26,33 +56,11 @@ module "eks" {
   }
 
   tags = local.tags
+  depends_on = [
+    module.vpc
+  ]
 }
 
-
-module "eks_blueprints_addons" {
-  source = "aws-ia/eks-blueprints-addons/aws"
-  version = "1.0.0"
-
-  cluster_name      = module.eks.cluster_name
-  cluster_endpoint  = module.eks.cluster_endpoint
-  cluster_version   = module.eks.cluster_version
-  oidc_provider_arn = module.eks.oidc_provider_arn
-
-  # EKS Add-on
-  eks_addons = {
-    coredns    = {}
-    vpc-cni    = {}
-    kube-proxy = {}
-  }
-
-  # Add-ons 
-  
-  enable_external_secrets = true
-    
-  depends_on = [ 
-    module.eks
-   ]
-}
 
 ################################################################################
 # Kong Add-on
@@ -61,9 +69,10 @@ module "eks_blueprints_addons" {
 
 module "eks_blueprints_kubernetes_addon_kong" {
 
-  source = "Kong/eks-blueprint-konnect-runtime-instance/aws"
-  version = "1.0.0"
-  
+  # source = "Kong/eks-blueprint-konnect-runtime-instance/aws"
+  # version = "1.0.0"
+  source    = "../../../terraform-aws-eks-blueprint-konnect-runtime-instance"
+
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint
   cluster_version   = module.eks.cluster_version
@@ -80,36 +89,7 @@ module "eks_blueprints_kubernetes_addon_kong" {
     values = [templatefile("${path.module}/kong_values.yaml", {})] 
   }
   depends_on = [
-    module.eks_blueprints_addons
+    module.eks
   ]
 }
 
-
-################################################################################
-# Supporting Resources
-################################################################################
-
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "5.0"
-
-  name = local.name
-  cidr = local.vpc_cidr
-
-  azs             = local.azs
-  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
-  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 10)]
-
-  enable_nat_gateway = true
-  single_nat_gateway = true
-
-  public_subnet_tags = {
-    "kubernetes.io/role/elb" = 1
-  }
-
-  private_subnet_tags = {
-    "kubernetes.io/role/internal-elb" = 1
-  }
-
-  tags = local.tags
-}
