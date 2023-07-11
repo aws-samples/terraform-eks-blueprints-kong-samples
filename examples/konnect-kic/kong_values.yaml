@@ -1,0 +1,13 @@
+gateway:
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 20
+    
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 75
