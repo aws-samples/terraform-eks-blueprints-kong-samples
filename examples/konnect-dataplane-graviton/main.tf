@@ -35,7 +35,7 @@ module "vpc" {
 #tfsec:ignore:aws-eks-enable-control-plane-logging
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 19.13"
+  version = "19.15.3"
 
   cluster_name                   = local.name
   cluster_version                = "1.27"
@@ -56,9 +56,9 @@ module "eks" {
   }
 
   tags = local.tags
-  depends_on = [
-    module.vpc
-  ]
+  # depends_on = [
+  #   module.vpc
+  # ]
 }
 
 
