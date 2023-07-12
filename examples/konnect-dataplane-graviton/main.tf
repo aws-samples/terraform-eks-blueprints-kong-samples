@@ -88,8 +88,8 @@ module "eks_blueprints_kubernetes_addon_kong" {
     key_secret_name  = var.key_secret_name
     values = [templatefile("${path.module}/kong_values.yaml", {})] 
   }
-  depends_on = [
-    module.eks
-  ]
+  # depends_on = [
+  #   module.eks
+  # ]
 }
 
