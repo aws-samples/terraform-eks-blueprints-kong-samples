@@ -55,6 +55,18 @@ module "eks" {
     }
   }
 
+  cluster_addons = {
+    coredns = {
+      most_recent = true
+    }
+    kube-proxy = {
+      most_recent = true
+    }
+    vpc-cni = {
+      most_recent = true
+    }
+  }
+
   tags = local.tags
   # depends_on = [
   #   module.vpc
@@ -68,7 +80,7 @@ module "eks" {
 
 
 module "eks_blueprints_kubernetes_addon_kong" {
-
+  count   = 1
   # source = "Kong/eks-blueprint-konnect-runtime-instance/aws"
   # version = "1.0.0"
   source    = "../../../terraform-aws-eks-blueprint-konnect-runtime-instance"
