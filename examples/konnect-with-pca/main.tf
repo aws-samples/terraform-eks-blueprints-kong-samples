@@ -1,4 +1,34 @@
 ################################################################################
+# Supporting Resources
+################################################################################
+
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "5.0"
+
+  name = local.name
+  cidr = local.vpc_cidr
+
+  azs             = local.azs
+  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
+  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 10)]
+
+  enable_nat_gateway = true
+  single_nat_gateway = true
+
+  public_subnet_tags = {
+    "kubernetes.io/role/elb" = 1
+  }
+
+  private_subnet_tags = {
+    "kubernetes.io/role/internal-elb" = 1
+  }
+
+  tags = local.tags
+}
+
+
+################################################################################
 # Cluster
 ################################################################################
 
@@ -49,7 +79,7 @@ module "eks_blueprints_addons" {
 
   # Add-ons 
   
-  enable_external_secrets = true
+  enable_external_secrets = false
     
   enable_cert_manager         = true
   enable_aws_privateca_issuer = true
@@ -69,10 +99,6 @@ module "eks_blueprints_addons" {
       repository    = "https://charts.jetstack.io"
     }
   }
-
-  depends_on = [ 
-    module.eks
-   ]
 }
 
 #-------------------------------
@@ -210,15 +236,15 @@ resource "kubectl_manifest" "pca_certificate" {
 
 
 module "eks_blueprints_kubernetes_addon_kong" {
-
-  source = "git@ssh.gitlab.aws.dev:anshrma/temporary-kong-terraform-blueprint.git?ref=v5"
+  count = var.enable_kong_konnect ? 1 : 0
+  source = "../../../terraform-aws-eks-blueprint-konnect-runtime-instance"
 
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint
   cluster_version   = module.eks.cluster_version
   oidc_provider_arn = module.eks.oidc_provider_arn
   
-  enable_kong_konnect = var.enable_kong_konnect
+  
   tags = local.tags
 
   kong_config = {
@@ -234,37 +260,8 @@ module "eks_blueprints_kubernetes_addon_kong" {
 
   }
   depends_on = [
-    module.eks_blueprints_addons,
     kubectl_manifest.pca_certificate
   ]
 }
 
 
-################################################################################
-# Supporting Resources
-################################################################################
-
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "5.0"
-
-  name = local.name
-  cidr = local.vpc_cidr
-
-  azs             = local.azs
-  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
-  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 10)]
-
-  enable_nat_gateway = true
-  single_nat_gateway = true
-
-  public_subnet_tags = {
-    "kubernetes.io/role/elb" = 1
-  }
-
-  private_subnet_tags = {
-    "kubernetes.io/role/internal-elb" = 1
-  }
-
-  tags = local.tags
-}
