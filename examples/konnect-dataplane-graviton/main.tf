@@ -100,7 +100,7 @@ module "eks_blueprints_kubernetes_addon_kong" {
     values = [templatefile("${path.module}/kong_values.yaml", {})] 
   }
   depends_on = [
-    module.eks
+    module.eks.eks_managed_node_groups
   ]
 }
 

@@ -260,7 +260,8 @@ module "eks_blueprints_kubernetes_addon_kong" {
 
   }
   depends_on = [
-    kubectl_manifest.pca_certificate
+    kubectl_manifest.pca_certificate,
+    module.eks.eks_managed_node_groups
   ]
 }
 

@@ -2,6 +2,8 @@
 
 ## Examples
 
-[Kong](./examples/konnect-dataplane-graviton)
+[Konnect with Dataplane as Graviton](./examples/konnect-dataplane-graviton)
 
-[Kong with pca](./examples/kong-with-pca)
+[Konnect with pca](./examples/konnect-with-pca)
+
+[Konnect with Fargate](./examples/konnect-fargate)

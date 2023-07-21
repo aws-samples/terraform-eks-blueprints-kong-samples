@@ -150,7 +150,7 @@ module "eks_blueprints_kubernetes_addon_kong" {
     values = [templatefile("${path.module}/kong_values.yaml", {})] 
   }
   depends_on = [
-    module.eks_blueprints_addons
+    module.eks_blueprints_addons.aws_load_balancer_controller
   ]
 }
 
