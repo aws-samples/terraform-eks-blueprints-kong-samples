@@ -64,9 +64,9 @@ module "eks" {
 
 
 module "eks_blueprints_kubernetes_addon_kong" {
-
-  source = "/Users/daniella.freese@konghq.com/Projects/Kong/eks_blueprints/terraform-aws-eks-blueprint-konnect-kic"
-  # version = "1.0.0"
+  
+  source = "Kong/terraform-aws-eks-blueprint-konnect-kic/aws"
+  version = "1.0.0"
 
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint
