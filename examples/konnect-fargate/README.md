@@ -1,9 +1,10 @@
 # Kong
 
-This example shows how to deploy kong konnect on Amazon EKS
+This example shows how to deploy kong konnect on Amazon EKS with Fargate
 
 * Creates a new sample VPC, 3 Private Subnets and 3 Public Subnets
-* Amazon EKS Cluster and Amazon EKS managed node groups
+* Amazon EKS Cluster and AWS Fargate Profile
+* Enables aws-loadbalancer-controller module
 * Enables external-secrets module
 * Creates service account for the external_secrets operator and IAM role for service account along with the necessary policy
 * Creates a namespace 
@@ -51,12 +52,3 @@ Validate the deployment.
 ```
 kubectl get all -n kong 
 ```
-
-### What gets deployed in this example ?
-
-* VPC (4 subnet, 2 public and 2 private)
-* EKS Cluster
-* NLB
-* Managed Nodes on AL2 (Graviton)
-* External Secrets Manager Operator and related configurations to use AWS Secrets Manager (used to fetch certs and keys from AWS Secrets Manager)
-* Kong Data plane

@@ -1,0 +1,34 @@
+#-------------------------------------------------------------------------------
+# Kong parameters
+# -----------------------------------------------------------------------------
+proxy:
+  enabled: true
+  type: LoadBalancer
+  annotations: 
+    service.beta.kubernetes.io/aws-load-balancer-type: "external" 
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "Type=proxy"
+    external-dns.alpha.kubernetes.io/hostname: "proxy.kong-dp.internal"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+
+resources:
+  limits:
+    cpu: 1200m
+    memory: 800Mi
+  requests:
+    cpu: 300m
+    memory: 300Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 20
+  
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
+

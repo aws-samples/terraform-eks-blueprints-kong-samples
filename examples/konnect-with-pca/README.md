@@ -5,13 +5,14 @@ ACM Certificate Manager.
 
 * Creates a new sample VPC, 3 Private Subnets and 3 Public Subnets
 * Amazon EKS Cluster and Amazon EKS managed node groups
-* Enables external-secrets module
 * Enables cert-manager module
 * Enables cert-manager CSI driver module
 * Enables aws-privateca-issuer module
 * Creates AWS Certificate Manager Private Certificate Authority, enables and activates it
 * Creates the CRDs to fetch tls.crt, tls.key, which will be available as Kubernetes Secret. 
-* Creates a namespace , service account , IRSA for Kong  
+* Enables external-secrets module
+* Creates service account for the external_secrets operator and IAM role for service account along with the necessary policy
+* Creates a namespace
 * Create SecretStore and ExternalSecret to fetch the AWS Secrets Manager secret as kubernetes Secrets
 * Deploys Kong helm chart 
 

@@ -1,6 +1,5 @@
-
 ################################################################################
-# VPC
+# Supporting Resources
 ################################################################################
 
 module "vpc" {
@@ -32,10 +31,10 @@ module "vpc" {
 # Cluster
 ################################################################################
 
-#tfsec:ignore:aws-eks-enable-control-plane-logging
+# #tfsec:ignore:aws-eks-enable-control-plane-logging
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.15.3"
+  version = "~> 19.13"
 
   cluster_name                   = local.name
   cluster_version                = "1.27"
@@ -44,35 +43,85 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
+  # Fargate profiles use the cluster primary security group so these are not utilized
+  create_cluster_security_group = false
+  create_node_security_group    = false
 
-  eks_managed_node_groups = {
-    initial = {
-      instance_types = ["c7g.large"]
-      ami_type     = "AL2_ARM_64"
-      min_size     = 1
-      max_size     = 1
-      desired_size = 1
+  fargate_profiles = {
+    kube_system = {
+      name = "kube-system"
+      selectors = [
+        { namespace = "kube-system" }
+      ]
     }
-  }
-
-  cluster_addons = {
-    coredns = {
-      most_recent = true
+    external-secrets = {
+      name = "external-secrets"
+      selectors = [
+        { namespace = "external-secrets" }
+      ]
     }
-    kube-proxy = {
-      most_recent = true
-    }
-    vpc-cni = {
-      most_recent = true
+    kong = {
+      name = "kong"
+      selectors = [
+        { namespace = "kong" }
+      ]
     }
   }
 
   tags = local.tags
-  # depends_on = [
-  #   module.vpc
-  # ]
 }
 
+
+###################################################################
+# EKS Blueprints Addons
+################################################################################
+
+module "eks_blueprints_addons" {
+  source  = "aws-ia/eks-blueprints-addons/aws"
+  version = "1.0.0"
+
+  cluster_name      = module.eks.cluster_name
+  cluster_endpoint  = module.eks.cluster_endpoint
+  cluster_version   = module.eks.cluster_version
+  oidc_provider_arn = module.eks.oidc_provider_arn
+
+
+  # We want to wait for the Fargate profiles to be deployed first
+  create_delay_dependencies = [for prof in module.eks.fargate_profiles : prof.fargate_profile_arn]
+
+  # EKS Add-ons
+  eks_addons = {
+    coredns = {
+      configuration_values = jsonencode({
+        computeType = "Fargate"
+      })
+    }
+    vpc-cni    = {}
+    kube-proxy = {}
+  }
+
+  # Enable Fargate logging
+  enable_fargate_fluentbit = true
+  fargate_fluentbit = {
+    flb_log_cw = true
+  }
+
+  enable_aws_load_balancer_controller = true
+  aws_load_balancer_controller = {
+    set = [
+      {
+        name  = "vpcId"
+        value = module.vpc.vpc_id
+      },
+      {
+        name  = "podDisruptionBudget.maxUnavailable"
+        value = 1
+      },
+    ]
+  }
+
+  tags = local.tags
+}
 
 ################################################################################
 # Kong Add-on
@@ -80,11 +129,12 @@ module "eks" {
 
 
 module "eks_blueprints_kubernetes_addon_kong" {
-  count   = 1
+
   # source = "Kong/eks-blueprint-konnect-runtime-instance/aws"
   # version = "1.0.0"
   source    = "../../../terraform-aws-eks-blueprint-konnect-runtime-instance"
 
+  
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint
   cluster_version   = module.eks.cluster_version
@@ -100,7 +150,8 @@ module "eks_blueprints_kubernetes_addon_kong" {
     values = [templatefile("${path.module}/kong_values.yaml", {})] 
   }
   depends_on = [
-    module.eks.eks_managed_node_groups
+    module.eks_blueprints_addons.aws_load_balancer_controller
   ]
 }
+
 
