@@ -237,7 +237,9 @@ resource "kubectl_manifest" "pca_certificate" {
 
 module "eks_blueprints_kubernetes_addon_kong" {
   count = var.enable_kong_konnect ? 1 : 0
-  source = "../../../terraform-aws-eks-blueprint-konnect-runtime-instance"
+  # source = "../../../terraform-aws-eks-blueprint-konnect-runtime-instance"
+  source = "Kong/eks-blueprint-konnect-runtime-instance/aws"
+  version = "1.0.0"
 
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint
