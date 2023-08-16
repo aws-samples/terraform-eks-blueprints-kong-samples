@@ -27,11 +27,28 @@ module "vpc" {
 
   enable_flow_log = true
   create_flow_log_cloudwatch_log_group = true
-  create_flow_log_cloudwatch_iam_role  = true
+  create_flow_log_cloudwatch_iam_role = true
+  flow_log_cloudwatch_log_group_retention_in_days = 365
+
   # default_security_group_ingress = []
   # default_security_group_egress = []
   tags = local.tags
 }
+
+# resource "aws_flow_log" "s3_flow_log" {
+#   log_destination      = aws_s3_bucket.vpc_flow_logs.arn
+#   log_destination_type = "s3"
+#   traffic_type         = "ALL"
+#   vpc_id               = module.vpc.vpc_id
+#   destination_options {
+#     file_format        = "parquet"
+#     per_hour_partition = true
+#   }
+# }
+
+# resource "aws_s3_bucket" "vpc_flow_logs" {
+#   bucket = "${module.vpc.vpc_id}-vpc-flow-logs"
+# }
 
 ################################################################################
 # Cluster
@@ -43,7 +60,8 @@ module "eks" {
 
   cluster_name                   = local.name
   cluster_version                = "1.27"
-  cluster_endpoint_public_access = false
+  #checkov:skip=CKV_AWS_39:This solution will not work if the developer machine is not within VPC
+  cluster_endpoint_public_access = true
   //CKV_AWS_338
   cloudwatch_log_group_retention_in_days = 365
   //CKV_AWS_37
