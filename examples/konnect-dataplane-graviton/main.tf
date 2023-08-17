@@ -1,3 +1,42 @@
+################################################################################
+# KMS Key
+################################################################################
+module "kms" {
+  source  = "terraform-aws-modules/kms/aws"
+  version = "1.5.0"
+  enable_default_policy = true
+  enable_key_rotation   = true
+  key_statements = [
+    {
+      sid = "CloudWatchLogs"
+      actions = [
+        "kms:Encrypt*",
+        "kms:Decrypt*",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:Describe*"
+      ]
+      resources = ["*"]
+
+      principals = [
+        {
+          type        = "Service"
+          identifiers = ["logs.${data.aws_region.current.name}.amazonaws.com"]
+        }
+      ]
+
+      conditions = [
+        {
+          test     = "ArnLike"
+          variable = "kms:EncryptionContext:aws:logs:arn"
+          values = [
+            "arn:aws:logs:${local.region}:${data.aws_caller_identity.current.account_id}:log-group:*",
+          ]
+        }
+      ]
+    }
+  ]
+}
 
 ################################################################################
 # VPC
@@ -29,6 +68,7 @@ module "vpc" {
   create_flow_log_cloudwatch_log_group = true
   create_flow_log_cloudwatch_iam_role = true
   flow_log_cloudwatch_log_group_retention_in_days = 365
+  flow_log_cloudwatch_log_group_kms_key_id = module.kms.key_arn
 
   # default_security_group_ingress = []
   # default_security_group_egress = []
@@ -69,7 +109,8 @@ module "eks" {
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
-
+  kms_key_enable_default_policy = true
+  cloudwatch_log_group_kms_key_id = module.kms.key_arn
 
   eks_managed_node_groups = {
     initial = {
@@ -128,7 +169,7 @@ module "eks_blueprints_kubernetes_addon_kong" {
     telemetry_dns    = var.telemetry_dns
     cert_secret_name = var.cert_secret_name
     key_secret_name  = var.key_secret_name
-    values = [templatefile("${path.module}/kong_values.yaml", {})] 
+    values = [templatefile("${path.module}/kong_values.yaml", {})]
   }
   depends_on = [
     module.eks.eks_managed_node_groups
