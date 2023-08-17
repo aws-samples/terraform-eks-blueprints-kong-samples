@@ -5,3 +5,5 @@ terraform.tfstate
 terraform.tfstate.backup
 terraform.auto.tfvars
 terraform.auto.tfvars
+examples/konnect-dataplane-graviton/tf.json
+examples/konnect-dataplane-graviton/tf.plan
