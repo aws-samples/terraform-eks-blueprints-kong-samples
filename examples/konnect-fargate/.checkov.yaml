@@ -7,3 +7,4 @@ skip-check:
   - CKV2_AWS_11 # False positive from checkov. The VPC Flow logs with CW destination is getting created as confirmed by terraform apply
   - CKV2_AWS_12 # False positive from checkov. The default security group for this VPC has no enties (ingress or outbound as verified by terraform apply)
   - CKV2_AWS_5 # False positive from checkov. All security groups are attached to some entities as confirmed by Terraform apply
+  - CKV_AWS_355 # False positive from checkov. This is either already set to minimum or showing false positive

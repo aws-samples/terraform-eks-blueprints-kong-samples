@@ -1,94 +1,12 @@
-################################################################################
-# KMS Key
-################################################################################
-module "kms" {
-  source  = "terraform-aws-modules/kms/aws"
-  version = "1.5.0"
-  enable_default_policy = true
-  enable_key_rotation   = true
-  key_statements = [
-    {
-      sid = "CloudWatchLogs"
-      actions = [
-        "kms:Encrypt*",
-        "kms:Decrypt*",
-        "kms:ReEncrypt*",
-        "kms:GenerateDataKey*",
-        "kms:Describe*"
-      ]
-      resources = ["*"]
 
-      principals = [
-        {
-          type        = "Service"
-          identifiers = ["logs.${data.aws_region.current.name}.amazonaws.com"]
-        }
-      ]
 
-      conditions = [
-        {
-          test     = "ArnLike"
-          variable = "kms:EncryptionContext:aws:logs:arn"
-          values = [
-            "arn:aws:logs:${local.region}:${data.aws_caller_identity.current.account_id}:log-group:*",
-          ]
-        }
-      ]
-    }
-  ]
+module "common" {
+  source = "../common/"
 }
 
-################################################################################
-# VPC
-################################################################################
-
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "5.1.1"
-
-  name = local.name
-  cidr = local.vpc_cidr
-
-  azs             = local.azs
-  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
-  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 10)]
-
-  enable_nat_gateway = true
-  single_nat_gateway = true
-
-  public_subnet_tags = {
-    "kubernetes.io/role/elb" = 1
-  }
-
-  private_subnet_tags = {
-    "kubernetes.io/role/internal-elb" = 1
-  }
-
-  enable_flow_log = true
-  create_flow_log_cloudwatch_log_group = true
-  create_flow_log_cloudwatch_iam_role = true
-  flow_log_cloudwatch_log_group_retention_in_days = 365
-  flow_log_cloudwatch_log_group_kms_key_id = module.kms.key_arn
-
-  # default_security_group_ingress = []
-  # default_security_group_egress = []
-  tags = local.tags
+provider "aws" {
+  region  = module.common.region
 }
-
-# resource "aws_flow_log" "s3_flow_log" {
-#   log_destination      = aws_s3_bucket.vpc_flow_logs.arn
-#   log_destination_type = "s3"
-#   traffic_type         = "ALL"
-#   vpc_id               = module.vpc.vpc_id
-#   destination_options {
-#     file_format        = "parquet"
-#     per_hour_partition = true
-#   }
-# }
-
-# resource "aws_s3_bucket" "vpc_flow_logs" {
-#   bucket = "${module.vpc.vpc_id}-vpc-flow-logs"
-# }
 
 ################################################################################
 # Cluster
@@ -98,19 +16,17 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "19.15.3"
 
-  cluster_name                   = local.name
+  cluster_name                   = basename(path.cwd)
   cluster_version                = "1.27"
-  #checkov:skip=CKV_AWS_39:This solution will not work if the developer machine is not within VPC
   cluster_endpoint_public_access = true
-  //CKV_AWS_338
   cloudwatch_log_group_retention_in_days = 365
   //CKV_AWS_37
   cluster_enabled_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.private_subnets
+  vpc_id     = module.common.vpc_id
+  subnet_ids = module.common.private_subnets
   kms_key_enable_default_policy = true
-  cloudwatch_log_group_kms_key_id = module.kms.key_arn
+  cloudwatch_log_group_kms_key_id = module.common.key_arn
 
   eks_managed_node_groups = {
     initial = {
@@ -139,9 +55,9 @@ module "eks" {
     }
   }
 
-  tags = local.tags
+  tags = module.common.tags
   # depends_on = [
-  #   module.vpc
+  #   module.common
   # ]
 }
 
@@ -162,7 +78,7 @@ module "eks_blueprints_kubernetes_addon_kong" {
   cluster_version   = module.eks.cluster_version
   oidc_provider_arn = module.eks.oidc_provider_arn
 
-  tags = local.tags
+  tags = module.common.tags
 
   kong_config = {
     cluster_dns      = var.cluster_dns

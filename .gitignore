@@ -7,3 +7,12 @@ terraform.auto.tfvars
 terraform.auto.tfvars
 examples/konnect-dataplane-graviton/tf.json
 examples/konnect-dataplane-graviton/tf.plan
+examples/konnect-fargate/temp.json
+examples/konnect-fargate/tf.json
+examples/konnect-fargate/tf.plan
+examples/konnect-fargate/.terraform.tfstate.lock.info
+.DS_Store
+examples/konnect-dataplane-graviton/.terraform.tfstate.lock.info
+examples/konnect-dataplane-graviton/checkov.txt
+examples/konnect-fargate/.checkov.yaml
+examples/konnect-fargate/checkov-fargate.txt
