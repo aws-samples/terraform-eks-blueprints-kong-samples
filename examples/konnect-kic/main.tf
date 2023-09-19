@@ -1,30 +1,9 @@
-################################################################################
-# VPC
-################################################################################
+module "common" {
+  source = "../common/"
+}
 
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "5.0"
-
-  name = local.name
-  cidr = local.vpc_cidr
-
-  azs             = local.azs
-  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
-  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 10)]
-
-  enable_nat_gateway = true
-  single_nat_gateway = true
-
-  public_subnet_tags = {
-    "kubernetes.io/role/elb" = 1
-  }
-
-  private_subnet_tags = {
-    "kubernetes.io/role/internal-elb" = 1
-  }
-
-  tags = local.tags
+provider "aws" {
+  region  = module.common.region
 }
 
 ################################################################################
@@ -36,12 +15,17 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 19.13"
 
-  cluster_name                   = local.name
-  cluster_version                = "1.26"
+  cluster_name                   = basename(path.cwd)
+  cluster_version                = "1.27"
   cluster_endpoint_public_access = true
+  cloudwatch_log_group_retention_in_days = 365
+  //CKV_AWS_37
+  cluster_enabled_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.private_subnets
+  vpc_id     = module.common.vpc_id
+  subnet_ids = module.common.private_subnets
+  kms_key_enable_default_policy = true
+  cloudwatch_log_group_kms_key_id = module.common.key_arn
 
 
   eks_managed_node_groups = {
@@ -51,10 +35,28 @@ module "eks" {
       min_size     = 1
       max_size     = 2
       desired_size = 2
+      //CKV_AWS_341: "Ensure Launch template should not have a metadata response hop limit greater than 1"
+      metadata_options = {
+          http_put_response_hop_limit = 1
+          http_tokens                 = "required"
+      }
+    }
+    
+  }
+
+  cluster_addons = {
+    coredns = {
+      most_recent = true
+    }
+    kube-proxy = {
+      most_recent = true
+    }
+    vpc-cni = {
+      most_recent = true
     }
   }
 
-  tags = local.tags
+  tags = module.common.tags
 }
 
 
@@ -65,16 +67,15 @@ module "eks" {
 
 module "eks_blueprints_kubernetes_addon_kong" {
   
-  source = "Kong/terraform-aws-eks-blueprint-konnect-kic/aws"
-  version = "1.0.0"
+  source = "Kong/eks-blueprint-konnect-kic/aws"
+  version = "~> 1.0.1"
 
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint
   cluster_version   = module.eks.cluster_version
   oidc_provider_arn = module.eks.oidc_provider_arn
 
-  enable_kong_konnect_kic = true
-  tags                    = local.tags
+  tags                    = module.common.tags
 
   kong_config = {
     # chart_version    = "0.3.0"
@@ -84,9 +85,7 @@ module "eks_blueprints_kubernetes_addon_kong" {
     cert_secret_name = var.cert_secret_name
     key_secret_name  = var.key_secret_name
   }
-  depends_on = [
-    module.eks
-  ]
+  
 }
 
 
