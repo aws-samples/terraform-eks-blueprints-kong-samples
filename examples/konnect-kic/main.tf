@@ -84,6 +84,10 @@ module "eks_blueprints_kubernetes_addon_kong" {
     telemetry_dns    = local.telemetry_dns
     cert_secret_name = var.cert_secret_name
     key_secret_name  = var.key_secret_name
+
+    add_ons = {
+      enable_external_secrets = true
+    }
   }
   
 }

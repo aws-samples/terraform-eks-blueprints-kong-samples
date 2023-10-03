@@ -126,6 +126,10 @@ module "eks_blueprints_kubernetes_addon_kong" {
     cert_secret_name = var.cert_secret_name
     key_secret_name  = var.key_secret_name
     values = [templatefile("${path.module}/kong_values.yaml", {})] 
+
+    add_ons = {
+      enable_external_secrets = true
+    }
   }
   depends_on = [
     module.eks_blueprints_addons.aws_load_balancer_controller

@@ -260,6 +260,9 @@ module "eks_blueprints_kubernetes_addon_kong" {
       acm_pca_cert_secretname = local.acm_pca_cert_secretname
     })]
 
+    add_ons = {
+      enable_external_secrets = true
+    }
   }
   depends_on = [
     kubectl_manifest.pca_certificate,
