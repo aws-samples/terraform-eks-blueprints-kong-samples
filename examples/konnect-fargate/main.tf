@@ -109,7 +109,7 @@ module "eks_blueprints_addons" {
 module "eks_blueprints_kubernetes_addon_kong" {
 
   source = "Kong/eks-blueprint-konnect-runtime-instance/aws"
-  version = "1.0.0"
+  version = "1.1.0"
   # source    = "../../../terraform-aws-eks-blueprint-konnect-runtime-instance"
 
   

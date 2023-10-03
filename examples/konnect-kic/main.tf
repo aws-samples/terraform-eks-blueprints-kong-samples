@@ -68,7 +68,7 @@ module "eks" {
 module "eks_blueprints_kubernetes_addon_kong" {
   
   source = "Kong/eks-blueprint-konnect-kic/aws"
-  version = "~> 1.0.1"
+  version = "~> 1.1.0"
 
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint

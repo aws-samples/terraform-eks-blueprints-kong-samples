@@ -70,7 +70,7 @@ module "eks" {
 module "eks_blueprints_kubernetes_addon_kong" {
   count   = 1
   source = "Kong/eks-blueprint-konnect-runtime-instance/aws"
-  version = "1.0.0"
+  version = "1.1.0"
   # source    = "../../../terraform-aws-eks-blueprint-konnect-runtime-instance"
 
   cluster_name      = module.eks.cluster_name
