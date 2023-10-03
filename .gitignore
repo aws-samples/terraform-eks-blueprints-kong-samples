@@ -18,3 +18,4 @@ examples/konnect-fargate/.checkov.yaml
 examples/konnect-fargate/checkov-fargate.txt
 examples/konnect-kic/tf.json
 examples/konnect-kic/tf.plan
+.DS_Store
