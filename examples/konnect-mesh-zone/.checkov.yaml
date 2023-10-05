@@ -1,0 +1,10 @@
+skip-check: 
+  - CKV_AWS_39 # This solution will not work otherwise if the developer machine is not within VPC 
+  - CKV_AWS_38 # This solution will not work otherwise if the developer machine is not within VPC
+  - CKV_AWS_339 # This is false positive from checkov. The solution uses 1.27 which is supported version
+  - CKV2_AWS_44 # The VPC is just for sample.
+  - CKV2_AWS_19 # This is coming from base VPC module, provided by AWS, the logic or configuration cannot be changed.
+  - CKV2_AWS_11 # False positive from checkov. The VPC Flow logs with CW destination is getting created as confirmed by terraform apply
+  - CKV2_AWS_12 # False positive from checkov. The default security group for this VPC has no enties (ingress or outbound as verified by terraform apply)
+  - CKV2_AWS_5 # False positive from checkov. All security groups are attached to some entities as confirmed by Terraform apply
+  - CKV_AWS_355 # False positive from checkov. This is either already set to minimum or showing false positive
