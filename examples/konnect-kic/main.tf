@@ -68,7 +68,7 @@ module "eks" {
 module "eks_blueprints_kubernetes_addon_kong" {
   
   source = "Kong/eks-blueprint-konnect-kic/aws"
-  version = "~> 1.0.1"
+  version = "~> 1.1.0"
 
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint
@@ -84,6 +84,10 @@ module "eks_blueprints_kubernetes_addon_kong" {
     telemetry_dns    = local.telemetry_dns
     cert_secret_name = var.cert_secret_name
     key_secret_name  = var.key_secret_name
+
+    add_ons = {
+      enable_external_secrets = true
+    }
   }
   
 }

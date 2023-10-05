@@ -70,7 +70,7 @@ module "eks" {
 module "eks_blueprints_kubernetes_addon_kong" {
   count   = 1
   source = "Kong/eks-blueprint-konnect-runtime-instance/aws"
-  version = "1.0.0"
+  version = "1.1.0"
   # source    = "../../../terraform-aws-eks-blueprint-konnect-runtime-instance"
 
   cluster_name      = module.eks.cluster_name
@@ -86,6 +86,10 @@ module "eks_blueprints_kubernetes_addon_kong" {
     cert_secret_name = var.cert_secret_name
     key_secret_name  = var.key_secret_name
     values = [templatefile("${path.module}/kong_values.yaml", {})]
+
+    add_ons = {
+      enable_external_secrets = true
+    }
   }
   depends_on = [
     module.eks.eks_managed_node_groups
