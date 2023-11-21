@@ -18,3 +18,6 @@ examples/konnect-fargate/.checkov.yaml
 examples/konnect-fargate/checkov-fargate.txt
 examples/konnect-kic/tf.json
 examples/konnect-kic/tf.plan
+kong-konnect
+kong-konnect-runtime-cert-generator_Darwin_x86_64.tar.gz
+examples/konnect-kic/.terraform.tfstate.lock.info
