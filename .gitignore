@@ -19,3 +19,5 @@ examples/konnect-fargate/checkov-fargate.txt
 examples/konnect-kic/tf.json
 examples/konnect-kic/tf.plan
 .DS_Store
+examples/konnect-dataplane-graviton/kong-konnect
+examples/konnect-dataplane-graviton/kong-konnect-runtime-cert-generator_Darwin_x86_64.tar.gz
