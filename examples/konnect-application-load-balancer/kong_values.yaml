@@ -16,7 +16,10 @@ proxy:
     annotations:
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/load-balancer-name: alb-kong-proxy
-      alb.ingress.kubernetes.io/success-codes: '404' # TODO : THIS IS A WORKAROUND.
+      alb.ingress.kubernetes.io/success-codes: '404' 
+      # TODO : Checking for 404 status code in health check at / path is a workaround as by default there wont be any upstream
+      # configured. This can potentially break, if a user overrides this route with a upstream.
+      # Alternatively, configure https://docs.konghq.com/hub/kong-inc/request-termination at a specific path exclusively for ELB healh checks
       alb.ingress.kubernetes.io/target-type: ip
 
 
