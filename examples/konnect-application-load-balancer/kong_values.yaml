@@ -1,0 +1,37 @@
+#-------------------------------------------------------------------------------
+# Kong parameters
+# -----------------------------------------------------------------------------
+# Putting image is optional, but using this as an example how to run on Graviton
+image:
+  repository: kong/kong-gateway
+proxy:
+  enabled: true
+  type: NodePort
+  tls:
+    enabled: false
+  ingress:
+    # Enable/disable exposure using ingress.
+    enabled: true
+    ingressClassName: alb
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/load-balancer-name: alb-kong-proxy
+      alb.ingress.kubernetes.io/success-codes: '404' 
+      # TODO : Checking for 404 status code in health check at / path is a workaround as by default there wont be any upstream
+      # configured. This can potentially break, if a user overrides this route with a upstream.
+      # Alternatively, configure https://docs.konghq.com/hub/kong-inc/request-termination at a specific path exclusively for ELB healh checks
+      alb.ingress.kubernetes.io/target-type: ip
+
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 20
+  
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
