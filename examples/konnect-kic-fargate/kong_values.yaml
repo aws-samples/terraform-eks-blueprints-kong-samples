@@ -1,0 +1,18 @@
+#-------------------------------------------------------------------------------
+# Kong parameters
+# -----------------------------------------------------------------------------
+gateway:
+  resources:
+    limits:
+      cpu: 1200m
+      memory: 800Mi
+    requests:
+      cpu: 300m
+      memory: 300Mi
+  proxy:
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: "external"
+      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+      service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "Type=proxy"
+      external-dns.alpha.kubernetes.io/hostname: "proxy.kong-dp.internal"
+      service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
