@@ -1,0 +1,3 @@
+kuma:
+  controlPlane:
+    replicas: 2
