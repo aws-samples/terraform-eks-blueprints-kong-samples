@@ -21,3 +21,5 @@ examples/konnect-kic/tf.plan
 .DS_Store
 examples/konnect-dataplane-graviton/kong-konnect
 examples/konnect-dataplane-graviton/kong-konnect-runtime-cert-generator_Darwin_x86_64.tar.gz
+examples/konnect-kic-lambda-plugin/version.tf
+examples/konnect-dataplane-graviton/temp.json
