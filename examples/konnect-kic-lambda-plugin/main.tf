@@ -215,6 +215,8 @@ resource "kubernetes_manifest" "kong_lambda_plugin" {
       "forward_request_uri" = true
       "forward_request_body" = true
       "forward_request_headers" = true
+      "awsgateway_compatible" = true
+      "is_proxy_integration" = true
     }
   }
 }
