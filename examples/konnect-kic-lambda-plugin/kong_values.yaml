@@ -1,0 +1,8 @@
+---
+gateway:
+  deployment:
+    serviceAccount:
+      create: true
+      annotations:
+        eks.amazonaws.com/role-arn: ${role_arn}
+      name: ${sa_name}
